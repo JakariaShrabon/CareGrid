@@ -1,0 +1,31 @@
+import { usePatient, usePatientUpdates } from "@/features/patients/hooks/use-patients";
+import { useNotifications } from "@/features/notifications/hooks/use-notifications";
+import { useAuth } from "@/features/auth/auth-provider";
+import { useMemo } from "react";
+
+export function usePatientDashboardData() {
+  const { session } = useAuth();
+  const patientId = session?.user.patientId || "";
+
+  const { data: patient, isLoading: patientLoading, error: patientError } = usePatient(patientId);
+  const { data: updates, isLoading: updatesLoading, error: updatesError } = usePatientUpdates(patientId);
+  const { data: notifications, isLoading: notificationsLoading, error: notificationsError } = useNotifications();
+
+  const isLoading = patientLoading || updatesLoading || notificationsLoading;
+  const error = patientError || updatesError || notificationsError;
+
+  const latestUpdate = useMemo(() => {
+    if (!updates || updates.length === 0) return null;
+    return updates[0];
+  }, [updates]);
+
+  return {
+    data: {
+      patient: patient,
+      latestUpdate,
+      recentNotifications: notifications?.items || [],
+    },
+    isLoading,
+    error,
+  };
+}
