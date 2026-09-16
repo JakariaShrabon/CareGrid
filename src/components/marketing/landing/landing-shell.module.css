@@ -1,0 +1,40 @@
+.ambientLayer {
+  background:
+    radial-gradient(circle at 18% 24%, rgba(125, 211, 252, 0.2), transparent 28%),
+    radial-gradient(circle at 78% 18%, rgba(45, 212, 191, 0.16), transparent 30%),
+    linear-gradient(135deg, #f8fcff 0%, #eef8fb 52%, #f9fbfd 100%);
+}
+
+.ambientShadow {
+  background:
+    radial-gradient(ellipse at 20% 72%, rgba(14, 116, 144, 0.14), transparent 34%),
+    radial-gradient(ellipse at 80% 68%, rgba(13, 148, 136, 0.16), transparent 36%);
+  filter: blur(28px);
+  animation: landing-ambient-drift 12s ease-in-out infinite;
+}
+
+.medicalGrid {
+  background-image:
+    linear-gradient(rgba(14, 116, 144, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(14, 116, 144, 0.055) 1px, transparent 1px);
+  background-size: 52px 52px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.82), transparent 84%);
+}
+
+@keyframes landing-ambient-drift {
+  0%,
+  100% {
+    opacity: 0.72;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate3d(0, -16px, 0) scale(1.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambientShadow {
+    animation: none;
+  }
+}
