@@ -2,6 +2,7 @@ import { useMemo, useState, type ReactNode } from 'react'
 import {
   ChevronLeft,
   ChevronRight,
+  PenLine,
   Stethoscope,
   Syringe,
 } from 'lucide-react'
@@ -31,6 +32,7 @@ import type {
   VitalsReading,
 } from '@/types/clinical'
 import { vitalsLevel } from '@/lib/clinical'
+import { timeAgo } from '@/lib/time'
 import { userInitials } from '@/lib/utils'
 
 const PAGE_SIZE = 12
@@ -40,7 +42,13 @@ type SortKey =
   | 'ward'
   | 'status'
   | 'attendingDoctor'
-  | 'admissionDate'
+  | 'lastUpdated'
+
+const genderLabel: Record<Patient['gender'], string> = {
+  male: 'Male',
+  female: 'Female',
+  other: 'Other',
+}
 
 function SortButton({
   column,
@@ -76,22 +84,26 @@ interface PatientTableProps {
   patients: Patient[]
   readingsById: ReadonlyMap<string, VitalsReading>
   canRecord: boolean
+  canEdit: boolean
   onRecordVitals: (patient: Patient) => void
+  onEdit: (patient: Patient) => void
 }
 
 /**
- * Patient directory table with sorting, pagination and quick vitals access.
+ * Patient directory table with sorting, pagination and quick actions.
  * Rendering-only role affordances are passed in by the page.
  */
 export function PatientTable({
   patients,
   readingsById,
   canRecord,
+  canEdit,
   onRecordVitals,
+  onEdit,
 }: PatientTableProps) {
   const [page, setPage] = useState(1)
-  const [sortKey, setSortKey] = useState<SortKey>('admissionDate')
-  const [sortAsc, setSortAsc] = useState(true)
+  const [sortKey, setSortKey] = useState<SortKey>('lastUpdated')
+  const [sortAsc, setSortAsc] = useState(false)
 
   const sorted = useMemo(() => {
     const list = [...patients]
@@ -99,8 +111,8 @@ export function PatientTable({
       const value =
         a[sortKey] === b[sortKey]
           ? a.fullName.localeCompare(b.fullName)
-          : sortKey === 'admissionDate'
-            ? new Date(a.admissionDate).getTime() - new Date(b.admissionDate).getTime()
+          : sortKey === 'lastUpdated'
+            ? new Date(a.lastUpdated).getTime() - new Date(b.lastUpdated).getTime()
             : String(a[sortKey]).localeCompare(String(b[sortKey]))
       return sortAsc ? value : -value
     })
@@ -139,10 +151,16 @@ export function PatientTable({
                   Patient
                 </SortButton>
               </TableHead>
-              <TableHead>Admission</TableHead>
+              <TableHead>Gender</TableHead>
+              <TableHead>Blood group</TableHead>
               <TableHead>
                 <SortButton column="ward" sortKey={sortKey} sortAsc={sortAsc} onToggle={toggleSort}>
                   Ward / Bed
+                </SortButton>
+              </TableHead>
+              <TableHead>
+                <SortButton column="attendingDoctor" sortKey={sortKey} sortAsc={sortAsc} onToggle={toggleSort}>
+                  Assigned doctor
                 </SortButton>
               </TableHead>
               <TableHead>
@@ -150,10 +168,9 @@ export function PatientTable({
                   Status
                 </SortButton>
               </TableHead>
-              <TableHead>Latest vitals</TableHead>
               <TableHead>
-                <SortButton column="attendingDoctor" sortKey={sortKey} sortAsc={sortAsc} onToggle={toggleSort}>
-                  Attending doctor
+                <SortButton column="lastUpdated" sortKey={sortKey} sortAsc={sortAsc} onToggle={toggleSort}>
+                  Last updated
                 </SortButton>
               </TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -181,50 +198,28 @@ export function PatientTable({
                           {patient.fullName}
                         </Link>
                         <p className="truncate text-xs text-muted-foreground">
-                          {patient.patientId} · {patient.age} yr · {patient.bloodGroup}
+                          {patient.patientId} · {patient.age} yr
                         </p>
                       </div>
                     </div>
                   </TableCell>
+                  <TableCell className="text-sm">{genderLabel[patient.gender]}</TableCell>
+                  <TableCell className="text-sm tabular-nums">{patient.bloodGroup}</TableCell>
                   <TableCell>
-                    <p className="text-sm">
-                      {new Date(patient.admissionDate).toLocaleDateString('en-GB', {
-                        day: 'numeric',
-                        month: 'short',
-                      })}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {patient.department}
-                    </p>
-                  </TableCell>
-                  <TableCell>
-                    <p className="text-sm">
-                      {patient.bed ? patient.bed : 'Unassigned'}
-                    </p>
+                    <p className="text-sm">{patient.bed ? patient.bed : 'Unassigned'}</p>
                     <p className="text-xs text-muted-foreground">{patient.ward}</p>
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    <span className="line-clamp-1 max-w-[10rem]">{patient.attendingDoctor}</span>
                   </TableCell>
                   <TableCell>
                     <PatientStatusBadge status={patient.status} />
                   </TableCell>
                   <TableCell>
-                    {flag && reading ? (
-                      <div className="flex items-center gap-2 text-sm whitespace-nowrap">
-                        <span className="tabular-nums">
-                          {reading.systolic}/{reading.diastolic}
-                        </span>
-                        <span className="text-muted-foreground">·</span>
-                        <span className="tabular-nums">SpO₂ {reading.spo2}%</span>
-                      </div>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">
-                        No readings
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-sm">
-                    <span className="line-clamp-1 max-w-[10rem]">
-                      {patient.attendingDoctor}
-                    </span>
+                    <p className="text-sm tabular-nums">{timeAgo(patient.lastUpdated)}</p>
+                    {flag ? (
+                      <span className="text-xs text-muted-foreground">{flag.label}</span>
+                    ) : null}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
@@ -234,6 +229,17 @@ export function PatientTable({
                           <span className="hidden sm:inline">View</span>
                         </Link>
                       </Button>
+                      {canEdit ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => onEdit(patient)}
+                          aria-label={`Edit ${patient.fullName}`}
+                        >
+                          <PenLine aria-hidden="true" className="size-3.5" />
+                          <span className="hidden md:inline">Edit</span>
+                        </Button>
+                      ) : null}
                       {canRecord && patient.status !== 'discharged' ? (
                         <Button
                           size="sm"
@@ -241,7 +247,7 @@ export function PatientTable({
                           onClick={() => onRecordVitals(patient)}
                         >
                           <Syringe aria-hidden="true" className="size-3.5" />
-                          <span className="hidden sm:inline">Vitals</span>
+                          <span className="hidden lg:inline">Vitals</span>
                         </Button>
                       ) : null}
                     </div>

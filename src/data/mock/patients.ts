@@ -66,6 +66,25 @@ function isoDaysAgo(days: number, hour = 9): string {
   return date.toISOString()
 }
 
+/**
+ * Deterministic fictional clinical note for a seed. Composed from the seed
+ * fields so it stays stable across reloads — clearly demo, never real data.
+ */
+function clinicalNoteFor(seed: PatientSeed): string {
+  const dayOne = seed.diagnosis
+  const statusSentence: Record<PatientStatus, string> = {
+    critical:
+      'Vitals remain unstable and are being charted at an increased frequency. The rapid response plan applies; reassess at the next scheduled review.',
+    under_observation:
+      'Ongoing observation with early-warning scoring. Progress will be reviewed on the next ward round before a plan is confirmed.',
+    stable:
+      'Condition remains within expected range for the working diagnosis. Continuing the current care plan with daily review.',
+    discharged:
+      'Ready for discharge today. Follow-up appointment booked with the attending clinician.',
+  }
+  return `${dayOne}. ${statusSentence[seed.status]}`
+}
+
 interface PatientSeed {
   patientId: string
   fullName: string
@@ -672,6 +691,7 @@ export const patientsSeed: Patient[] = seeds.map((seed) => ({
   ...seed,
   age: computeAge(seed.dateOfBirth),
   admissionDate: isoDaysAgo(seed.admissionDaysAgo, seed.admissionHour),
+  notes: clinicalNoteFor(seed),
   lastUpdated: new Date().toISOString(),
 }))
 

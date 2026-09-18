@@ -57,6 +57,8 @@ export interface Patient {
   allergies: string[]
   medications: PatientMedication[]
   admissionType: AdmissionType
+  /** Free-text clinical summary recorded by the care team. */
+  notes?: string
   lastUpdated: string
 }
 
@@ -114,6 +116,12 @@ export interface Ward {
   /** Room/bed prefix, e.g. `GEN` for the General Ward. */
   prefix: string
   bedCount: number
+  /** Owning clinical department. */
+  department: string
+  /** Facility floor the ward is located on. */
+  floor: string
+  /** Care level / ward classification. */
+  type: string
 }
 
 export interface Bed {

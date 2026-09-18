@@ -1,5 +1,12 @@
 import type { ReactNode } from 'react'
-import { BedDouble, CheckCircle2, Minus, Ban, Star } from 'lucide-react'
+import {
+  BedDouble,
+  CheckCircle2,
+  Minus,
+  Ban,
+  Star,
+  Sparkles,
+} from 'lucide-react'
 import type { WardSummary } from '@/services/wards'
 import { cn } from 'cn'
 
@@ -8,8 +15,8 @@ interface WardSummaryProps {
 }
 
 /**
- * Bed occupancy summary: overall numbers plus per-ward breakdown with
- * status-aware counts and a visual occupancy bar.
+ * Bed occupancy summary: overall numbers plus a per-ward breakdown that also
+ * surfaces each ward's department, floor and care type.
  */
 export function WardSummary({ summary }: WardSummaryProps) {
   const overall = summary.overall
@@ -19,7 +26,7 @@ export function WardSummary({ summary }: WardSummaryProps) {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         <SummaryTile
           icon={<BedDouble aria-hidden="true" className="size-4" />}
           label="Total beds"
@@ -38,9 +45,15 @@ export function WardSummary({ summary }: WardSummaryProps) {
           tone="text-emerald-600 dark:text-emerald-400"
         />
         <SummaryTile
+          icon={<Sparkles aria-hidden="true" className="size-4" />}
+          label="Cleaning"
+          value={String(overall.cleaning)}
+          tone="text-muted-foreground"
+        />
+        <SummaryTile
           icon={<Ban aria-hidden="true" className="size-4" />}
-          label="Cleaning / Reserved"
-          value={String(overall.cleaning + overall.reserved)}
+          label="Reserved"
+          value={String(overall.reserved)}
           tone="text-muted-foreground"
         />
       </div>
@@ -68,13 +81,19 @@ export function WardSummary({ summary }: WardSummaryProps) {
             ? Math.round((stats.occupied / stats.total) * 100)
             : 0
           return (
-            <li key={ward.id} className="flex flex-col gap-2 px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <li
+              key={ward.id}
+              className="flex flex-col gap-3 px-3 py-3 sm:flex-row sm:items-center sm:justify-between"
+            >
               <div className="flex items-center gap-3">
-                <span className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <Star aria-hidden="true" className="size-4" />
                 </span>
                 <div>
                   <p className="text-sm font-medium">{ward.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {ward.department} · {ward.floor} · {ward.type}
+                  </p>
                   <p className="text-xs text-muted-foreground">
                     {stats.occupied} occupied · {stats.available} free ·{' '}
                     {stats.cleaning} cleaning · {stats.reserved} reserved

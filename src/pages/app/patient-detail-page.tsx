@@ -220,6 +220,11 @@ export function PatientDetailPage({ onNavigateOut }: PatientDetailPageProps) {
             </div>
           </section>
 
+          <section className="rounded-xl border bg-card p-5">
+            <h2 className="mb-1.5 text-sm font-medium">Clinical notes</h2>
+            <p className="text-sm text-muted-foreground">{patient.notes ?? 'No notes recorded.'}</p>
+          </section>
+
           <section className="grid gap-4 sm:grid-cols-2">
             <div className="rounded-xl border bg-card p-5">
               <h2 className="mb-3 text-sm font-medium">Contact & emergency</h2>

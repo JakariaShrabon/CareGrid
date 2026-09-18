@@ -87,23 +87,47 @@ export function BedDetailsDrawer({
                 Assigned patient
               </h3>
               {patient ? (
-                <div className="flex items-center gap-3 rounded-xl border bg-muted/40 p-3">
-                  <span
-                    className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary"
-                    aria-hidden="true"
-                  >
-                    {userInitials(patient.fullName)}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">{patient.fullName}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {patient.patientId} · {patient.department}
-                    </p>
-                    <Button asChild variant="link" size="sm" className="h-auto px-0 text-xs">
-                      <Link to={`/app/patients/${patient.patientId}`}>Open record</Link>
-                    </Button>
+                <>
+                  <div className="flex items-center gap-3 rounded-xl border bg-muted/40 p-3">
+                    <span
+                      className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary"
+                      aria-hidden="true"
+                    >
+                      {userInitials(patient.fullName)}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">{patient.fullName}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {patient.patientId} · {patient.bloodGroup} · {patient.department}
+                      </p>
+                      <Button asChild variant="link" size="sm" className="h-auto px-0 text-xs">
+                        <Link to={`/app/patients/${patient.patientId}`}>Open record</Link>
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                  <dl className="mt-3 space-y-2.5 text-sm">
+                    <div className="flex justify-between gap-4">
+                      <dt className="text-muted-foreground">Admitted</dt>
+                      <dd className="text-right tabular-nums">
+                        {formatDateTime(patient.admissionDate)}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <dt className="text-muted-foreground">Assigned doctor</dt>
+                      <dd className="text-right">{patient.attendingDoctor}</dd>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <dt className="text-muted-foreground">Assigned nurse</dt>
+                      <dd className="text-right">{patient.assignedNurse}</dd>
+                    </div>
+                  </dl>
+                  <div className="mt-3 rounded-lg border bg-muted/30 p-3">
+                    <p className="text-xs font-medium text-muted-foreground">
+                      Clinical summary
+                    </p>
+                    <p className="mt-1 text-sm">{patient.diagnosis}</p>
+                  </div>
+                </>
               ) : (
                 <p className="text-sm text-muted-foreground">
                   {bed.status === 'occupied'

@@ -11,7 +11,9 @@ import {
   CommandList,
   CommandShortcut,
 } from '@/components/ui/command'
-import { appNavigation } from '@/config/app-navigation'
+import type { UserRole } from '@/types/auth'
+import { appNavigation, navigationForRole } from '@/config/app-navigation'
+import { useSession } from '@/hooks/use-auth'
 
 interface SearchEntry {
   label: string
@@ -20,14 +22,16 @@ interface SearchEntry {
   icon: (typeof appNavigation)[number]['items'][number]['icon']
 }
 
-const searchEntries: SearchEntry[] = appNavigation.flatMap((group) =>
-  group.items.map((item) => ({
-    label: item.label,
-    href: item.href,
-    groupLabel: group.label,
-    icon: item.icon,
-  })),
-)
+function buildSearchEntries(role: UserRole | undefined): SearchEntry[] {
+  return navigationForRole(role).flatMap((group) =>
+    group.items.map((item) => ({
+      label: item.label,
+      href: item.href,
+      groupLabel: group.label,
+      icon: item.icon,
+    })),
+  )
+}
 
 /**
  * Global search foundation. Matches navigation sections/items with keyboard
@@ -36,6 +40,8 @@ const searchEntries: SearchEntry[] = appNavigation.flatMap((group) =>
 export function GlobalSearch() {
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
+  const session = useSession()
+  const searchEntries = buildSearchEntries(session?.user.role)
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {

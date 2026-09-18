@@ -8,11 +8,12 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import {
-  appNavigation,
   isAppNavItemActive,
+  navigationForRole,
   type AppNavItem,
 } from '@/config/app-navigation'
 import { useAppShellStore } from '@/store/use-app-shell-store'
+import { useSession } from '@/hooks/use-auth'
 
 function NavItem({
   item,
@@ -67,6 +68,8 @@ function NavItem({
 /** Desktop sidebar: collapsible, keyboard navigable, tooltip when collapsed. */
 export function AppSidebar() {
   const collapsed = useAppShellStore((state) => state.sidebarCollapsed)
+  const session = useSession()
+  const navigation = navigationForRole(session?.user.role)
 
   return (
     <aside
@@ -100,7 +103,7 @@ export function AppSidebar() {
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4">
-        {appNavigation.map((group) => (
+        {navigation.map((group) => (
           <div key={group.id} className="mb-5">
             {collapsed ? (
               <div

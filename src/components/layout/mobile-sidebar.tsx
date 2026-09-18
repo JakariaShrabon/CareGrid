@@ -1,13 +1,16 @@
 import { Link } from 'react-router-dom'
 import { CareGridLogo } from '@/components/brand/caregrid-logo'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { appNavigation } from '@/config/app-navigation'
+import { navigationForRole } from '@/config/app-navigation'
 import { useAppShellStore } from '@/store/use-app-shell-store'
+import { useSession } from '@/hooks/use-auth'
 
-/** Mobile navigation drawer — full navigation from the shared config. */
+/** Mobile navigation drawer — role-aware navigation from the shared config. */
 export function MobileSidebar() {
   const open = useAppShellStore((state) => state.mobileNavOpen)
   const setOpen = useAppShellStore((state) => state.setMobileNavOpen)
+  const session = useSession()
+  const navigation = navigationForRole(session?.user.role)
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -19,7 +22,7 @@ export function MobileSidebar() {
         </SheetHeader>
 
         <nav className="flex-1 overflow-y-auto px-3 py-4" aria-label="Application navigation">
-          {appNavigation.map((group) => (
+          {navigation.map((group) => (
             <div key={group.id} className="mb-5">
               <p className="mb-1.5 px-2 text-[11px] font-semibold tracking-wider text-muted-foreground/80 uppercase">
                 {group.label}

@@ -13,6 +13,7 @@ export {
 export { RecordVitalsDialog } from './record-vitals-dialog'
 export { VitalsTable } from './vitals-table'
 export { VitalsChart } from './vitals-chart'
+export { VitalMetric } from './vital-metric'
 export { CareTimeline } from './care-timeline'
 export { WardSummary } from './ward-summary'
 export { BedGrid } from './bed-grid'

@@ -12,3 +12,9 @@ export function timeAgo(input: string | Date): string {
   const days = Math.round(diff / DAY_MS)
   return days === 1 ? 'Yesterday' : `${days}d ago`
 }
+
+/** True when `input` falls within the trailing `minutes` window from now. */
+export function isWithinMinutes(input: string | Date, minutes: number): boolean {
+  const then = typeof input === 'string' ? new Date(input) : input
+  return Date.now() - then.getTime() <= minutes * MINUTE_MS
+}

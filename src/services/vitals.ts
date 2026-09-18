@@ -14,8 +14,8 @@ export interface VitalsService {
   latestReadings(): Promise<VitalsReading[]>
   /** Latest reading for a single patient, if any. */
   getReading(patientId: string): Promise<VitalsReading | null>
-  /** Time-series history (charts) for a patient's vitals. */
-  historyFor(patientId: string): Promise<VitalsPoint[]>
+  /** Time-series history (charts) for a patient's vitals over `days`. */
+  historyFor(patientId: string, days?: number): Promise<VitalsPoint[]>
   /** Persist a new vitals reading for a patient. */
   record(input: RecordVitalsInput): Promise<VitalsReading>
 }

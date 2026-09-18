@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { Plus, UserPlus } from 'lucide-react'
+import { PenLine, Plus, UserPlus } from 'lucide-react'
 import { Container } from '@/components/common/container'
 import { ErrorState } from '@/components/common/error-state'
 import { PageHeader } from '@/components/common/page-header'
@@ -39,6 +39,7 @@ export function PatientListPage() {
 
   const [filters, setFilters] = useState(EMPTY_PATIENT_FILTERS)
   const [addOpen, setAddOpen] = useState(false)
+  const [editing, setEditing] = useState<Patient | null>(null)
   const [recordPatient, setRecordPatient] = useState<Patient | null>(null)
 
   const { data: patients, isLoading, isError, refetch } = useQuery({
@@ -73,24 +74,26 @@ export function PatientListPage() {
   }, [beds])
 
   const filtered = useMemo(() => {
-    const activeFilters = (patients ?? []).filter((patient) => {
+    const q = filters.search.trim().toLowerCase()
+    return (patients ?? []).filter((patient) => {
       if (filters.status !== 'all' && patient.status !== filters.status) return false
       if (filters.ward !== 'all' && patient.ward !== filters.ward) return false
       if (filters.department !== 'all' && patient.department !== filters.department) {
         return false
       }
-      if (filters.search.trim()) {
-        const q = filters.search.trim().toLowerCase()
-        const matchName = patient.fullName.toLowerCase().includes(q)
-        const matchId = patient.patientId.toLowerCase().includes(q)
-        if (!matchName && !matchId) return false
+      if (filters.bloodGroup !== 'all' && patient.bloodGroup !== filters.bloodGroup) {
+        return false
+      }
+      if (q) {
+        const matches =
+          patient.fullName.toLowerCase().includes(q) ||
+          patient.patientId.toLowerCase().includes(q) ||
+          patient.phone.toLowerCase().includes(q) ||
+          patient.attendingDoctor.toLowerCase().includes(q)
+        if (!matches) return false
       }
       return true
     })
-    return activeFilters.sort(
-      (a, b) =>
-        new Date(a.admissionDate).getTime() - new Date(b.admissionDate).getTime(),
-    )
   }, [patients, filters])
 
   const mutateAdd = useMutation({
@@ -102,6 +105,18 @@ export function PatientListPage() {
       setAddOpen(false)
     },
     onError: () => toast.error('Could not admit the patient.'),
+  })
+
+  const mutateEdit = useMutation({
+    mutationFn: ({ id, input }: { id: string; input: NewPatientInput }) =>
+      patientService.update({ ...input, patientId: id }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['patients', 'list'] })
+      queryClient.invalidateQueries({ queryKey: ['wards', 'beds'] })
+      toast.success('Patient record updated')
+      setEditing(null)
+    },
+    onError: () => toast.error('Could not update the patient record.'),
   })
 
   const mutateVitals = useMutation({
@@ -146,7 +161,9 @@ export function PatientListPage() {
             patients={filtered}
             readingsById={readingsById}
             canRecord={clinician}
+            canEdit={clinician}
             onRecordVitals={(patient) => setRecordPatient(patient)}
+            onEdit={(patient) => setEditing(patient)}
           />
         </>
       )}
@@ -168,6 +185,31 @@ export function PatientListPage() {
             busy={mutateAdd.isPending}
             onSave={(input) => mutateAdd.mutate(input)}
             onCancel={() => setAddOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={Boolean(editing)} onOpenChange={(open) => { if (!open) setEditing(null) }}>
+        <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <PenLine aria-hidden="true" className="size-4 text-primary" />
+              Edit patient record
+            </DialogTitle>
+            <DialogDescription>
+              Update admission details. This is a demo — no real record changes.
+            </DialogDescription>
+          </DialogHeader>
+          <PatientForm
+            initial={editing ?? undefined}
+            bedsByWard={bedsByWard}
+            busy={mutateEdit.isPending}
+            onSave={(input) =>
+              editing
+                ? mutateEdit.mutate({ id: editing.patientId, input })
+                : undefined
+            }
+            onCancel={() => setEditing(null)}
           />
         </DialogContent>
       </Dialog>

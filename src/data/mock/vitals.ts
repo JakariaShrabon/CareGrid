@@ -94,24 +94,28 @@ export function generateLatestReadings(): VitalsReading[] {
 }
 
 /**
- * Time-series preview for the vitals charts: seven days sampled every three
- * hours ending at the patient's latest reading, so recordings stay visible.
+ * Time-series preview for the vitals charts: `days` of history sampled every
+ * few hours ending at the patient's latest reading, so recordings stay
+ * visible regardless of the selected range.
  */
 export function buildVitalsSeries(
   patient: Patient,
   latest: VitalsReading,
+  days = 7,
 ): VitalsPoint[] {
   const base = profileFor(patient)
   const points: VitalsPoint[] = []
-  const samplingMs = 3 * 3_600_000
+  const sampleCount = 56
+  const windowMs = days * 24 * 3_600_000
+  const samplingMs = windowMs / sampleCount
   const latestAt = new Date(latest.recordedAt).getTime()
 
   const wave = (offsetIndex: number, salt: string) =>
     Math.sin(offsetIndex / 6 + hashOf(salt) % 7) * 0.6
 
-  for (let index = 55; index >= 0; index -= 1) {
+  for (let index = sampleCount - 1; index >= 0; index -= 1) {
     const t = latestAt - index * samplingMs
-    const drift = (55 - index) / 55
+    const drift = (sampleCount - 1 - index) / (sampleCount - 1)
     const heartRate = Math.round(
       base.heartRate - (base.heartRate - latest.heartRate) * drift + wave(index, 'hr'),
     )

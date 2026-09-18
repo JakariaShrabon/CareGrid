@@ -66,6 +66,7 @@ export function VitalsTable({
           <TableHeader>
             <TableRow>
               <TableHead>Patient</TableHead>
+              <TableHead>Ward / Bed</TableHead>
               <TableHead>Recorded</TableHead>
               <TableHead className="text-right">HR</TableHead>
               <TableHead className="text-right">BP</TableHead>
@@ -97,6 +98,14 @@ export function VitalsTable({
                         <p className="text-xs text-muted-foreground">{patient?.patientId}</p>
                       </div>
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    <p className="text-sm text-muted-foreground">
+                      {patient ? patient.ward : '—'}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {patient?.bed ?? 'Unassigned'}
+                    </p>
                   </TableCell>
                   <TableCell>
                     <p className="text-sm tabular-nums">{timeAgo(reading.recordedAt)}</p>

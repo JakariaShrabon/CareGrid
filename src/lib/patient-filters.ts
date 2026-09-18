@@ -3,6 +3,7 @@ export interface PatientFilterState {
   status: 'all' | 'stable' | 'under_observation' | 'critical' | 'discharged'
   ward: 'all' | string
   department: 'all' | string
+  bloodGroup: 'all' | string
 }
 
 export const EMPTY_PATIENT_FILTERS: PatientFilterState = {
@@ -10,4 +11,5 @@ export const EMPTY_PATIENT_FILTERS: PatientFilterState = {
   status: 'all',
   ward: 'all',
   department: 'all',
+  bloodGroup: 'all',
 }

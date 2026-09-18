@@ -2,11 +2,51 @@ import type { Bed, BedStatus, Ward, WardStats } from '@/types/clinical'
 
 /** Fictional wards. `bedCount` must match the bed generator in the service. */
 export const WARDS: Ward[] = [
-  { id: 'general', name: 'General Ward', prefix: 'GEN', bedCount: 26 },
-  { id: 'icu', name: 'ICU', prefix: 'ICU', bedCount: 8 },
-  { id: 'emergency', name: 'Emergency', prefix: 'EMG', bedCount: 6 },
-  { id: 'cardiology', name: 'Cardiology', prefix: 'CAR', bedCount: 12 },
-  { id: 'neurology', name: 'Neurology', prefix: 'NEU', bedCount: 10 },
+  {
+    id: 'general',
+    name: 'General Ward',
+    prefix: 'GEN',
+    bedCount: 26,
+    department: 'General Medicine',
+    floor: '1st floor',
+    type: 'General',
+  },
+  {
+    id: 'icu',
+    name: 'ICU',
+    prefix: 'ICU',
+    bedCount: 8,
+    department: 'Intensive Care',
+    floor: '2nd floor',
+    type: 'Intensive care',
+  },
+  {
+    id: 'emergency',
+    name: 'Emergency',
+    prefix: 'EMG',
+    bedCount: 6,
+    department: 'Emergency Medicine',
+    floor: 'Ground floor',
+    type: 'Emergency',
+  },
+  {
+    id: 'cardiology',
+    name: 'Cardiology',
+    prefix: 'CAR',
+    bedCount: 12,
+    department: 'Cardiology',
+    floor: '3rd floor',
+    type: 'Specialist',
+  },
+  {
+    id: 'neurology',
+    name: 'Neurology',
+    prefix: 'NEU',
+    bedCount: 10,
+    department: 'Neurology',
+    floor: '3rd floor',
+    type: 'Specialist',
+  },
 ]
 
 /** Ward name to canonical bed id prefix. */

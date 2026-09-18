@@ -22,10 +22,24 @@ import {
 import type { Patient, RecordVitalsInput } from '@/types/clinical'
 import { useSession } from '@/hooks/use-auth'
 import { VITALS_DISCLAIMER, vitalsLevel } from '@/lib/clinical'
+import { isWithinMinutes } from '@/lib/time'
 import { isClinician } from '@/lib/roles'
 import { patientService, vitalsService } from '@/services'
 
 type LevelFilter = 'all' | 'steady' | 'watch' | 'critical'
+
+type TimeRange = '15' | '60' | '180' | '360' | 'all'
+
+const TIME_RANGE_OPTIONS: Array<{ value: TimeRange; label: string }> = [
+  { value: '15', label: 'Last 15 minutes' },
+  { value: '60', label: 'Last hour' },
+  { value: '180', label: 'Last 3 hours' },
+  { value: '360', label: 'Last 6 hours' },
+  { value: 'all', label: 'All time' },
+]
+
+const toMinutes = (value: TimeRange): number =>
+  value === 'all' ? Number.POSITIVE_INFINITY : Number(value)
 
 function KpiTile({ label, value, tone }: { label: string; value: string; tone?: string }) {
   return (
@@ -49,6 +63,7 @@ export function VitalsPage() {
   const [search, setSearch] = useState('')
   const [level, setLevel] = useState<LevelFilter>('all')
   const [ward, setWard] = useState<'all' | string>('all')
+  const [timeRange, setTimeRange] = useState<TimeRange>('all')
   const [recordOpen, setRecordOpen] = useState(false)
   const [recordPatient, setRecordPatient] = useState<Patient | null>(null)
 
@@ -76,33 +91,30 @@ export function VitalsPage() {
     const list = readings ?? []
     const flagged = list.filter((reading) => vitalsLevel(reading).level !== 'steady')
     const critical = list.filter((reading) => vitalsLevel(reading).level === 'critical')
-    const avgSpO2 = list.length
-      ? Math.round(
-          list.reduce((acc, reading) => acc + reading.spo2, 0) / list.length,
-        )
-      : 0
+    const recent = list.filter((reading) => isWithinMinutes(reading.recordedAt, 60))
     return {
       monitored: list.length,
       flagged: flagged.length,
       critical: critical.length,
-      avgSpO2,
+      recent: recent.length,
     }
   }, [readings])
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
+    const minutes = toMinutes(timeRange)
     return (readings ?? []).filter((reading) => {
-      const patient = patientById.get(reading.patientId)
       if (level !== 'all' && vitalsLevel(reading).level !== level) return false
-      if (ward !== 'all' && patient?.ward !== ward) return false
+      if (ward !== 'all' && patientById.get(reading.patientId)?.ward !== ward) return false
+      if (!isWithinMinutes(reading.recordedAt, minutes)) return false
       if (q) {
-        const name = patient?.fullName.toLowerCase() ?? ''
+        const name = patientById.get(reading.patientId)?.fullName.toLowerCase() ?? ''
         const id = reading.patientId.toLowerCase()
         if (!name.includes(q) && !id.includes(q)) return false
       }
       return true
     })
-  }, [readings, patientById, search, level, ward])
+  }, [readings, patientById, search, level, ward, timeRange])
 
   const mutateVitals = useMutation({
     mutationFn: (input: RecordVitalsInput) => vitalsService.record(input),
@@ -141,18 +153,18 @@ export function VitalsPage() {
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <KpiTile label="Monitored patients" value={kpis.monitored ? `${kpis.monitored}` : '0'} />
         <KpiTile
-          label="Needs attention"
+          label="Abnormal readings"
           value={kpis.flagged ? `${kpis.flagged}` : '0'}
           tone={kpis.flagged ? 'text-amber-600 dark:text-amber-400' : undefined}
         />
         <KpiTile
-          label="Critical readings"
+          label="Critical patients"
           value={kpis.critical ? `${kpis.critical}` : '0'}
           tone={kpis.critical ? 'text-destructive' : undefined}
         />
         <KpiTile
-          label="Average SpO₂"
-          value={kpis.avgSpO2 ? `${kpis.avgSpO2}%` : '—'}
+          label="Recent measurements"
+          value={kpis.recent ? `${kpis.recent}` : '0'}
         />
       </div>
       <p className="text-xs text-muted-foreground">{VITALS_DISCLAIMER}</p>
@@ -183,20 +195,32 @@ export function VitalsPage() {
                 className="pl-9"
               />
             </div>
-            <div className="grid grid-cols-2 gap-3 sm:w-80">
-              <Select value={level} onValueChange={(value) => setLevel(value as LevelFilter)}>
-                <SelectTrigger aria-label="Filter by vitals flag">
-                  <SelectValue placeholder="All flags" />
+            <div className="grid grid-cols-2 gap-3 sm:w-full lg:w-auto">
+              <Select value={timeRange} onValueChange={(value) => setTimeRange(value as TimeRange)}>
+                <SelectTrigger aria-label="Filter by time range" className="w-full lg:w-40">
+                  <SelectValue placeholder="All time" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All flags</SelectItem>
+                  {TIME_RANGE_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={level} onValueChange={(value) => setLevel(value as LevelFilter)}>
+                <SelectTrigger aria-label="Filter by status" className="w-full lg:w-40">
+                  <SelectValue placeholder="All statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All statuses</SelectItem>
                   <SelectItem value="steady">Steady</SelectItem>
                   <SelectItem value="watch">Watch</SelectItem>
                   <SelectItem value="critical">Critical</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={ward} onValueChange={setWard}>
-                <SelectTrigger aria-label="Filter by ward">
+                <SelectTrigger aria-label="Filter by ward" className="w-full lg:w-44">
                   <SelectValue placeholder="All wards" />
                 </SelectTrigger>
                 <SelectContent>

@@ -27,12 +27,12 @@ export const mockVitalsService: VitalsService = {
     await delay(150)
     return readings.find((reading) => reading.patientId === patientId) ?? null
   },
-  async historyFor(patientId) {
+  async historyFor(patientId, days = 7) {
     await delay()
     const patient = findPatientSeed(patientId)
     const latest = readings.find((reading) => reading.patientId === patientId)
     if (!patient || !latest) return []
-    return buildVitalsSeries(patient, latest)
+    return buildVitalsSeries(patient, latest, days)
   },
   async record(input) {
     await delay()

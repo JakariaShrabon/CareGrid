@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import {
+  BLOOD_GROUPS,
   PATIENT_DEPARTMENTS,
 } from '@/data/mock/patients'
 import { WARD_NAMES } from '@/lib/clinical-options'
@@ -22,13 +23,14 @@ interface PatientFiltersProps {
   onChange: (next: PatientFilterState) => void
 }
 
-/** Search + status/ward/department filters for the patient directory. */
+/** Search + status/ward/department/blood-group filters for the directory. */
 export function PatientFilters({ filters, onChange }: PatientFiltersProps) {
   const hasActive =
     filters.search !== '' ||
     filters.status !== 'all' ||
     filters.ward !== 'all' ||
-    filters.department !== 'all'
+    filters.department !== 'all' ||
+    filters.bloodGroup !== 'all'
 
   const set = <K extends keyof PatientFilterState>(key: K, value: PatientFilterState[K]) =>
     onChange({ ...filters, [key]: value })
@@ -41,18 +43,18 @@ export function PatientFilters({ filters, onChange }: PatientFiltersProps) {
           className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
         />
         <label htmlFor="patient-search" className="sr-only">
-          Search patients by name or ID
+          Search patients by name, ID, phone or doctor
         </label>
         <Input
           id="patient-search"
           value={filters.search}
           onChange={(event) => set('search', event.target.value)}
-          placeholder="Search by name or ID…"
+          placeholder="Search by name, ID, phone or doctor…"
           className="pl-9"
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Select
           value={filters.status}
           onValueChange={(value) => set('status', value as PatientFilterState['status'])}
@@ -83,10 +85,7 @@ export function PatientFilters({ filters, onChange }: PatientFiltersProps) {
           </SelectContent>
         </Select>
 
-        <Select
-          value={filters.department}
-          onValueChange={(value) => set('department', value)}
-        >
+        <Select value={filters.department} onValueChange={(value) => set('department', value)}>
           <SelectTrigger aria-label="Filter by department">
             <SelectValue placeholder="All departments" />
           </SelectTrigger>
@@ -95,6 +94,20 @@ export function PatientFilters({ filters, onChange }: PatientFiltersProps) {
             {PATIENT_DEPARTMENTS.map((department) => (
               <SelectItem key={department} value={department}>
                 {department}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={filters.bloodGroup} onValueChange={(value) => set('bloodGroup', value)}>
+          <SelectTrigger aria-label="Filter by blood group">
+            <SelectValue placeholder="All blood groups" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All blood groups</SelectItem>
+            {BLOOD_GROUPS.map((group) => (
+              <SelectItem key={group} value={group}>
+                {group}
               </SelectItem>
             ))}
           </SelectContent>
