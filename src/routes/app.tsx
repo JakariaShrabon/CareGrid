@@ -4,12 +4,25 @@ import { Navigate } from 'react-router-dom'
 import { RequireAuth } from '@/routes/guards'
 import { AppLayout } from '@/layouts/app-layout'
 import {
+  BloodDonorsPage,
+  BloodInventoryPage,
+  BloodRequestsPage,
+  BloodSosPage,
   DashboardPage,
+  FamilyPortalPage,
   ModulePlaceholderPage,
   NotificationsPage,
+  OrganDonorsPage,
+  OrganIschemiaPage,
+  OrganMatchingPage,
+  OrganWaitingListPage,
   PageLoader,
   PatientDetailPage,
   PatientListPage,
+  PharmacyAlertsPage,
+  PharmacyInventoryPage,
+  PharmacyPrescriptionDetailPage,
+  PharmacyPrescriptionsPage,
   VitalsHistoryPage,
   VitalsPage,
   WardsPage,
@@ -76,6 +89,130 @@ export const appRoutes: RouteObject[] = [
         element: (
           <Suspense fallback={<PageLoader />}>
             <WardsPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'family',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <FamilyPortalPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'organ',
+        element: <Navigate to="/app/organ/matching" replace />,
+      },
+      {
+        path: 'organ/matching',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <OrganMatchingPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'organ/waiting-list',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <OrganWaitingListPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'organ/ischemia',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <OrganIschemiaPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'organ/donors',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <OrganDonorsPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'organ/living-donors',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <OrganDonorsPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'blood',
+        element: <Navigate to="/app/blood/inventory" replace />,
+      },
+      {
+        path: 'blood/inventory',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <BloodInventoryPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'blood/donors',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <BloodDonorsPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'blood/requests',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <BloodRequestsPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'blood/sos',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <BloodSosPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'pharmacy',
+        element: <Navigate to="/app/pharmacy/prescriptions" replace />,
+      },
+      {
+        path: 'pharmacy/prescriptions',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <PharmacyPrescriptionsPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'pharmacy/prescriptions/:prescriptionId',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <PharmacyPrescriptionDetailPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'pharmacy/inventory',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <PharmacyInventoryPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'pharmacy/alerts',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <PharmacyAlertsPage />
           </Suspense>
         ),
       },

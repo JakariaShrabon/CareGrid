@@ -35,6 +35,10 @@ export type {
 export type { PatientService } from '@/services/patients'
 export type { VitalsService } from '@/services/vitals'
 export type { WardService, WardSummary } from '@/services/wards'
+export type { OrganService, MatchDecision } from '@/services/organ'
+export type { BloodService } from '@/services/blood'
+export type { PharmacyService } from '@/services/pharmacy'
+export type { FamilyService } from '@/services/family'
 
 import { mockAuthService } from '@/services/mock/mock-auth'
 import type { AuthService } from '@/services/auth'
@@ -46,6 +50,14 @@ import { mockVitalsService } from '@/services/mock/mock-vitals-service'
 import type { VitalsService } from '@/services/vitals'
 import { mockWardService } from '@/services/mock/mock-ward-service'
 import type { WardService } from '@/services/wards'
+import { mockOrganService } from '@/services/mock/mock-organ-service'
+import type { OrganService } from '@/services/organ'
+import { mockBloodService } from '@/services/mock/mock-blood-service'
+import type { BloodService } from '@/services/blood'
+import { mockPharmacyService } from '@/services/mock/mock-pharmacy-service'
+import type { PharmacyService } from '@/services/pharmacy'
+import { mockFamilyService } from '@/services/mock/mock-family-service'
+import type { FamilyService } from '@/services/family'
 
 export const authService: AuthService = mockAuthService
 
@@ -56,3 +68,11 @@ export const patientService: PatientService = mockPatientService
 export const vitalsService: VitalsService = mockVitalsService
 
 export const wardService: WardService = mockWardService
+
+export const organService: OrganService = mockOrganService
+
+export const bloodService: BloodService = mockBloodService
+
+export const pharmacyService: PharmacyService = mockPharmacyService
+
+export const familyService: FamilyService = mockFamilyService
