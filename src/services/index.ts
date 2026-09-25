@@ -30,6 +30,7 @@ export type { FamilyService } from '@/services/family'
 export type { BillingService } from '@/services/billing'
 export type { DischargeService } from '@/services/discharge'
 export type { NotificationService } from '@/services/notifications'
+export type { SettingsService } from '@/services/settings'
 
 import { mockAuthService } from '@/services/mock/mock-auth'
 import type { AuthService } from '@/services/auth'
@@ -55,6 +56,8 @@ import { mockDischargeService } from '@/services/mock/mock-discharge-service'
 import type { DischargeService } from '@/services/discharge'
 import { mockNotificationService } from '@/services/mock/mock-notification-service'
 import type { NotificationService } from '@/services/notifications'
+import { mockSettingsService } from '@/services/mock/mock-settings-service'
+import type { SettingsService } from '@/services/settings'
 
 export const authService: AuthService = mockAuthService
 
@@ -79,3 +82,5 @@ export const notificationService: NotificationService = mockNotificationService
 export const billingService: BillingService = mockBillingService
 
 export const dischargeService: DischargeService = mockDischargeService
+
+export const settingsService: SettingsService = mockSettingsService
