@@ -324,11 +324,14 @@ interfaces, and move role checks from the UI to server-side enforcement.
 
 ## Team
 
-| Role | Developer | GitHub |
-|---|---|---|
-| Frontend Developer | **Zafar Muhammad Amran** (`amransuui`) | [@JakariaShrabon](https://github.com/JakariaShrabon) |
-| Backend (Spring Boot) | Team — developed separately | — |
+## Team
 
-Repository: <https://github.com/JakariaShrabon/CareGrid>
+| Role                  | Developer                              | GitHub                                     |
+| --------------------- | -------------------------------------- | ------------------------------------------ |
+| Frontend Developer    | **Zafar Muhammad Amran** (`amransuui`) | [@amransuui](https://github.com/amransuui) |
+| Backend (Spring Boot) | Team — developed separately            | —                                          |
+
+Repository: https://github.com/JakariaShrabon/CareGrid
 Active branch: `Zafar-Muhammad-Amran`
+
 
