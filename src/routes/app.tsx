@@ -4,11 +4,18 @@ import { Navigate } from 'react-router-dom'
 import { RequireAuth } from '@/routes/guards'
 import { AppLayout } from '@/layouts/app-layout'
 import {
+  BillingClaimDetailPage,
+  BillingClaimsPage,
+  BillingInvoiceDetailPage,
+  BillingInvoicesPage,
+  BillingPage,
   BloodDonorsPage,
   BloodInventoryPage,
   BloodRequestsPage,
   BloodSosPage,
   DashboardPage,
+  DischargeDetailPage,
+  DischargePage,
   FamilyPortalPage,
   ModulePlaceholderPage,
   NotificationsPage,
@@ -21,8 +28,10 @@ import {
   PatientListPage,
   PharmacyAlertsPage,
   PharmacyInventoryPage,
+  PharmacyPage,
   PharmacyPrescriptionDetailPage,
   PharmacyPrescriptionsPage,
+  SettingsPage,
   VitalsHistoryPage,
   VitalsPage,
   WardsPage,
@@ -182,7 +191,11 @@ export const appRoutes: RouteObject[] = [
       },
       {
         path: 'pharmacy',
-        element: <Navigate to="/app/pharmacy/prescriptions" replace />,
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <PharmacyPage />
+          </Suspense>
+        ),
       },
       {
         path: 'pharmacy/prescriptions',
@@ -217,6 +230,62 @@ export const appRoutes: RouteObject[] = [
         ),
       },
       {
+        path: 'billing',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <BillingPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'billing/invoices',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <BillingInvoicesPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'billing/invoices/:invoiceId',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <BillingInvoiceDetailPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'billing/claims',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <BillingClaimsPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'billing/claims/:claimId',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <BillingClaimDetailPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'discharge',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <DischargePage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'discharge/:patientId',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <DischargeDetailPage />
+          </Suspense>
+        ),
+      },
+      {
         path: 'notifications',
         element: (
           <Suspense fallback={<PageLoader />}>
@@ -228,7 +297,7 @@ export const appRoutes: RouteObject[] = [
         path: 'settings',
         element: (
           <Suspense fallback={<PageLoader />}>
-            <ModulePlaceholderPage />
+            <SettingsPage />
           </Suspense>
         ),
       },

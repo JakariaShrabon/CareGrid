@@ -3,6 +3,7 @@ import {
   Activity,
   BedDouble,
   Bell,
+  Boxes,
   ClipboardPlus,
   Droplets,
   FileCheck2,
@@ -14,6 +15,7 @@ import {
   ListChecks,
   Pill,
   ReceiptText,
+  ScrollText,
   Settings,
   ShieldAlert,
   Siren,
@@ -121,6 +123,7 @@ export const appNavigation: AppNavGroup[] = [
     id: 'pharmacy',
     label: 'Pharmacy',
     items: [
+      { label: 'Overview', href: '/app/pharmacy', icon: Boxes, roles: STAFF_ROLES },
       { label: 'Prescriptions', href: '/app/pharmacy/prescriptions', icon: ClipboardPlus, roles: STAFF_ROLES },
       { label: 'Inventory', href: '/app/pharmacy/inventory', icon: Pill, roles: STAFF_ROLES },
       { label: 'Safety Alerts', href: '/app/pharmacy/alerts', icon: ShieldAlert, roles: STAFF_ROLES },
@@ -131,8 +134,9 @@ export const appNavigation: AppNavGroup[] = [
     label: 'Financial',
     items: [
       { label: 'Billing', href: '/app/billing', icon: ReceiptText, roles: STAFF_ROLES },
-      { label: 'Insurance', href: '/app/billing/insurance', icon: Landmark, roles: STAFF_ROLES },
-      { label: 'Discharge', href: '/app/billing/discharge', icon: FileCheck2, roles: STAFF_ROLES },
+      { label: 'Invoices', href: '/app/billing/invoices', icon: ScrollText, roles: STAFF_ROLES },
+      { label: 'Claims', href: '/app/billing/claims', icon: Landmark, roles: STAFF_ROLES },
+      { label: 'Discharge', href: '/app/discharge', icon: FileCheck2, roles: STAFF_ROLES },
     ],
   },
   {
@@ -164,17 +168,19 @@ export interface AppNavMatch {
 
 /** Resolve a route path to its navigation section and item, if any. */
 export function findAppNavItem(pathname: string): AppNavMatch | null {
+  let best: AppNavMatch | null = null
   for (const group of appNavigation) {
-    const item = group.items.find((entry) => {
-      if (entry.href === pathname) return true
-      return (
-        pathname.startsWith(`${entry.href}/`) &&
-        entry.href !== '/app/dashboard'
-      )
-    })
-    if (item) return { group, item }
+    for (const item of group.items) {
+      const isExact = item.href === pathname
+      const isAncestor =
+        item.href !== '/app/dashboard' && pathname.startsWith(`${item.href}/`)
+      if (!isExact && !isAncestor) continue
+      // Prefer the most specific href so `/app/billing/invoices` resolves to
+      // Invoices rather than its ancestor Billing entry.
+      if (!best || item.href.length > best.item.href.length) best = { group, item }
+    }
   }
-  return null
+  return best
 }
 
 /** Exact-and-subtree match for highlighting paginated detail routes. */

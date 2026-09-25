@@ -110,6 +110,51 @@ export const PharmacyAlertsPage = lazy(() =>
     default: module.PharmacyAlertsPage,
   })),
 )
+export const PharmacyPage = lazy(() =>
+  import('@/pages/app/pharmacy-page').then((module) => ({
+    default: module.PharmacyPage,
+  })),
+)
+export const BillingPage = lazy(() =>
+  import('@/pages/app/billing-page').then((module) => ({
+    default: module.BillingPage,
+  })),
+)
+export const BillingInvoicesPage = lazy(() =>
+  import('@/pages/app/billing-invoices-page').then((module) => ({
+    default: module.BillingInvoicesPage,
+  })),
+)
+export const BillingInvoiceDetailPage = lazy(() =>
+  import('@/pages/app/billing-invoice-detail-page').then((module) => ({
+    default: module.BillingInvoiceDetailPage,
+  })),
+)
+export const BillingClaimsPage = lazy(() =>
+  import('@/pages/app/billing-claims-page').then((module) => ({
+    default: module.BillingClaimsPage,
+  })),
+)
+export const BillingClaimDetailPage = lazy(() =>
+  import('@/pages/app/billing-claim-detail-page').then((module) => ({
+    default: module.BillingClaimDetailPage,
+  })),
+)
+export const DischargePage = lazy(() =>
+  import('@/pages/app/discharge-page').then((module) => ({
+    default: module.DischargePage,
+  })),
+)
+export const DischargeDetailPage = lazy(() =>
+  import('@/pages/app/discharge-detail-page').then((module) => ({
+    default: module.DischargeDetailPage,
+  })),
+)
+export const SettingsPage = lazy(() =>
+  import('@/pages/app/settings-page').then((module) => ({
+    default: module.SettingsPage,
+  })),
+)
 
 export function PageLoader() {
   return (
