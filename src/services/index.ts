@@ -28,6 +28,7 @@ export type { BloodService } from '@/services/blood'
 export type { PharmacyService } from '@/services/pharmacy'
 export type { FamilyService } from '@/services/family'
 export type { BillingService } from '@/services/billing'
+export type { DischargeService } from '@/services/discharge'
 export type { NotificationService } from '@/services/notifications'
 
 import { mockAuthService } from '@/services/mock/mock-auth'
@@ -50,6 +51,8 @@ import { mockFamilyService } from '@/services/mock/mock-family-service'
 import type { FamilyService } from '@/services/family'
 import { mockBillingService } from '@/services/mock/mock-billing-service'
 import type { BillingService } from '@/services/billing'
+import { mockDischargeService } from '@/services/mock/mock-discharge-service'
+import type { DischargeService } from '@/services/discharge'
 import { mockNotificationService } from '@/services/mock/mock-notification-service'
 import type { NotificationService } from '@/services/notifications'
 
@@ -74,3 +77,5 @@ export const familyService: FamilyService = mockFamilyService
 export const notificationService: NotificationService = mockNotificationService
 
 export const billingService: BillingService = mockBillingService
+
+export const dischargeService: DischargeService = mockDischargeService
