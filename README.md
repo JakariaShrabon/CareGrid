@@ -2,10 +2,28 @@
 
 **A Unified Digital Platform for Hospital Care, Blood & Organ Coordination**
 
-CareGrid.io is a digital platform that unifies hospital care operations with
-blood bank and organ coordination workflows. This repository contains the
-**frontend application only**; the backend is developed separately by
-teammates with Spring Boot.
+> **26 modules** · 6 role-based dashboards · React 19 + TypeScript + Vite
+> Frontend-only. Data flows through a service layer that mirrors REST, so the
+> Spring Boot backend can be swapped in without touching the UI.
+
+| Modules 1–10 | Modules 11–26 |
+|---|---|
+| Landing, auth, dashboard, patients, family portal, organ matching, waiting list, ischemia, living donors, smart blood bank | Vitals, wards, e-prescription, pharmacy overview, inventory, safety alerts, billing, invoices, insurance claims, digital discharge, notifications, settings |
+
+**Latest work — modules 11 to 26.** Billing, insurance claims and digital
+discharge are complete and cross-linked: each discharge mirrors its invoice,
+and both datasets run assertion guards at load time so the ledgers cannot
+drift. Notifications, settings and the pharmacy overview round out the
+operational side.
+
+```bash
+npm install && npm run dev     # http://localhost:5173
+```
+
+Demo password for every account: `Caregrid@2026` — see
+[Getting Started](#getting-started).
+
+---
 
 ## Technology Stack
 
@@ -108,49 +126,64 @@ load rather than showing an inconsistent ledger.
 
 ### Operational modules (11–26)
 
-11. **Vitals Monitoring** (`/app/vitals`, `/app/vitals/:patientId`) — trends
-    and abnormal-reading flags.
-12. **Ward & Bed Management** (`/app/wards`) — live bed occupancy grid.
-13. **E-Prescription** (`/app/pharmacy/prescriptions`,
-    `/app/pharmacy/prescriptions/:prescriptionId`) — write, review and
-    dispense prescriptions.
-14. **Pharmacy Overview** (`/app/pharmacy`) — dispensing queue, stock
-    pressure and open safety alerts at a glance.
-15. **Pharmacy Inventory** (`/app/pharmacy/inventory`) — stock levels,
-    reorder points and expiry tracking.
-16. **Pharmacy Safety Alerts** (`/app/pharmacy/alerts`) — simulated allergy,
-    interaction, duplicate-medication and stock alerts.
-17. **Billing** (`/app/billing`) — revenue KPIs, status charts, outstanding
-    balances and claim queue.
-18. **Invoice Management** (`/app/billing/invoices`,
-    `/app/billing/invoices/:invoiceId`) — invoice register with line items,
-    coverage, discounts and status transitions.
-19. **Insurance Claims** (`/app/billing/claims`,
-    `/app/billing/claims/:claimId`) — claim lifecycle with insurer responses
-    and settlement tracking.
-20. **Digital Discharge** (`/app/discharge`, `/app/discharge/:patientId`) —
-    readiness blockers, owner-scoped checklist, draft summary, medicines,
-    follow-up and the admission balance.
-21. **Notifications** (`/app/notifications`) — role-scoped in-app notification
-    centre shared by the topbar popover; read state is local to the browser.
-22. **Settings** (`/app/settings`) — profile, password, appearance,
-    notification channels and demo session management.
+### What was built
+
+| # | Module | Route | Service layer | Notes |
+|---|---|---|---|---|
+| 11 | Vitals Monitoring | `/app/vitals`, `/app/vitals/:patientId` | `VitalsService` | Trends with abnormal-reading flags |
+| 12 | Ward & Bed Management | `/app/wards` | `WardService` | Live bed occupancy grid |
+| 13 | E-Prescription | `/app/pharmacy/prescriptions`, `/:prescriptionId` | `PharmacyService` | Write, review and dispense |
+| 14 | Pharmacy Overview | `/app/pharmacy` | `PharmacyService` | Queue, stock pressure, open alerts |
+| 15 | Pharmacy Inventory | `/app/pharmacy/inventory` | `PharmacyService` | Stock, reorder points, expiry |
+| 16 | Pharmacy Safety Alerts | `/app/pharmacy/alerts` | `PharmacyService` | Allergy, interaction, duplicate, stock |
+| 17 | Billing | `/app/billing` | `BillingService` | Revenue KPIs, status mix, outstanding |
+| 18 | Invoice Management | `/app/billing/invoices`, `/:invoiceId` | `BillingService` | Line items, coverage, discounts, transitions |
+| 19 | Insurance Claims | `/app/billing/claims`, `/:claimId` | `BillingService` | Claim lifecycle and settlement |
+| 20 | Digital Discharge | `/app/discharge`, `/:patientId` | `DischargeService` | Blockers, checklist, summary, balance |
+| 21 | Notifications | `/app/notifications` | `NotificationService` | Role-scoped centre + topbar popover |
+| 22 | Settings | `/app/settings` | `SettingsService` | Profile, password, preferences, sessions |
+
+### Where the code lives
+
+| Area | Path | Contents |
+|---|---|---|
+| Domain models | `src/types/` | `billing`, `discharge`, `notifications`, `settings` — status unions and interfaces |
+| Business rules | `src/lib/` | `billing`, `discharge`, `format`, `table`, `roles` — pure functions, no React |
+| Fictional data | `src/data/mock/` | `billing`, `discharge`, `notifications`, `settings` — each with an import-time assertion guard |
+| Service contracts | `src/services/` | REST-shaped interfaces plus the mock implementations they resolve to |
+| Module UI | `src/components/billing/`, `src/components/settings/`, `src/components/notifications/` | Status badges, money breakdown, charts, panels, rows |
+| Pages | `src/pages/app/` | One file per route, all lazy-loaded |
+| Routes | `src/routes/`, `src/config/app-navigation.ts` | Route tree and role-aware navigation |
+
+### Design decisions worth knowing
+
+- **Cross-linked ledgers.** A discharge's billing snapshot is generated from
+  its invoice, so `gross − insurance − paid − waived = outstanding` holds by
+  construction. Editing one without the other fails at load.
+- **Owner-scoped checklists.** Each discharge checklist item names its owning
+  team, and only that role can close it — a pharmacist cannot tick off a
+  doctor's sign-off.
+- **Explicit userId in settings.** Profile operations take the session user's
+  id rather than reading a fixed demo user, so the same contract works against
+  an authenticated backend.
+- **One notification feed.** The topbar popover and the full page share a
+  single role-scoped React Query feed; read state lives in the browser, not on
+  a server.
+- **Guards over silent drift.** Where two datasets must agree, the mock asserts
+  the invariant at import and throws a specific message rather than rendering
+  a wrong number.
+
 
 ## Try the Demo
 
 All modules run on fictional demo data with a shared password:
-`Caregrid@2026`
-
-| Role | Email |
-|---|---|
-| Doctor | `shahid.hasan@caregrid.io` |
-| Nurse | `ayesha.malik@caregrid.io` |
-| Blood Bank Coordinator | `fatima.noor@caregrid.io` |
-| Pharmacist | `imran.chowdhury@caregrid.io` |
-| Billing Officer | `rana.khan@caregrid.io` |
-| Patient / Family | `tanvir.ahmed@caregrid.io` |
+`Caregrid@2026`. The full sign-in walkthrough and account list are in
+[Getting Started](#getting-started).
 
 ## Roles and Access
+
+Every account sees only the navigation its role allows, and action buttons
+are gated to the roles that own them:
 
 | Role | Sees |
 |---|---|
@@ -166,24 +199,78 @@ backend.
 
 ## Getting Started
 
-Prerequisites: Node.js 18+ and npm.
+### Prerequisites
+
+| Requirement | Version |
+|---|---|
+| Node.js | 18 or newer (`node --version`) |
+| npm | 9 or newer, bundled with Node |
+
+No database, API server or environment variables are required. Every module
+runs on in-memory fictional demo data.
+
+### Run it locally
 
 ```bash
-npm install        # install dependencies
-npm run dev        # start the dev server
+# 1. install dependencies
+npm install
+
+# 2. start the development server
+npm run dev
 ```
 
-Other scripts:
+Vite prints a local URL, usually `http://localhost:5173`. Open it in your
+browser. The app loads the public landing page with no login required.
+
+### Sign in
+
+1. Go to `/login`.
+2. Pick any demo account below, or type the email manually.
+3. Enter the shared password `Caregrid@2026`.
+4. You are redirected to `/app/dashboard`, and the sidebar, KPIs and
+   notification feed adapt to the selected role.
+
+| Role | Email | Sees |
+|---|---|---|
+| Doctor | `shahid.hasan@caregrid.io` | Clinical, wards, organ, discharge release |
+| Nurse | `ayesha.malik@caregrid.io` | Clinical, wards, organ, discharge release |
+| Blood Bank Coordinator | `fatima.noor@caregrid.io` | Blood bank modules |
+| Pharmacist | `imran.chowdhury@caregrid.io` | Pharmacy modules |
+| Billing Officer | `rana.khan@caregrid.io` | Billing, invoices, claims |
+| Patient / Family | `tanvir.ahmed@caregrid.io` | Dashboard and family portal only |
+
+The session is held in a Zustand store with `localStorage` persistence, so
+a refresh keeps you signed in. Use the profile menu → **Sign out** to clear
+it.
+
+### Available scripts
+
+| Script | What it does |
+|---|---|
+| `npm run dev` | Start the Vite dev server with hot reload |
+| `npm run build` | Typecheck (`tsc -b`) then build to `dist/` |
+| `npm run preview` | Serve the production build locally |
+| `npm run lint` | Lint with oxlint |
+
+### Verify the project is healthy
 
 ```bash
-npm run build      # production build (tsc -b && vite build)
-npm run preview    # preview the production build
-npm run lint       # lint with oxlint
-npx tsc --noEmit   # typecheck
+npm run lint     # expect: no errors
+npm run build    # expect: "built in Xs"
 ```
 
-> On Windows, if PowerShell blocks `npx.ps1` (`PSSecurityException`), run the
-> same script through `cmd /c npx ...` or invoke the local binary directly.
+If the billing or discharge fixtures ever disagree with each other, the app
+fails at load with a specific assertion message rather than rendering a
+wrong ledger. See [Demo data integrity](#demo-data-integrity).
+
+### Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| `npx.ps1 cannot be loaded because running scripts is disabled` | PowerShell execution policy. Run through `cmd /c npx ...`, or call the binary directly: `& "C:\Program Files\nodejs\node.exe" ".\node_modules\typescript\bin\tsc" -b --noEmit` |
+| Port 5173 already in use | Vite picks the next free port automatically; use the URL it prints |
+| `Cannot find module '@/components/ui/...'` | Run `npm install` — the `@` alias is resolved by Vite and `tsconfig.app.json`, not by Node |
+| Changes not appearing | Confirm the dev server is running and hard-reload the browser |
 
 ## Project Structure
 
@@ -237,7 +324,11 @@ interfaces, and move role checks from the UI to server-side enforcement.
 
 ## Team
 
-| Role | Developer |
-|---|---|
-| Frontend Developer | **Zafar Muhammad Amran** |
-| Backend (Spring Boot) | Team — developed separately |
+| Role | Developer | GitHub |
+|---|---|---|
+| Frontend Developer | **Zafar Muhammad Amran** (`amransuui`) | [@JakariaShrabon](https://github.com/JakariaShrabon) |
+| Backend (Spring Boot) | Team — developed separately | — |
+
+Repository: <https://github.com/JakariaShrabon/CareGrid>
+Active branch: `Zafar-Muhammad-Amran`
+
