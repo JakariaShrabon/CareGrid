@@ -1,6 +1,5 @@
 import type { DashboardService } from '@/services/dashboard'
 import { dashboardOverview } from '@/data/mock/dashboard'
-import { notificationsData } from '@/data/mock/notifications'
 import { recentActivityData } from '@/data/mock/activity'
 
 /**
@@ -18,10 +17,6 @@ export const mockDashboardService: DashboardService = {
   async getOverview() {
     await delay()
     return dashboardOverview
-  },
-  async getNotifications() {
-    await delay()
-    return notificationsData
   },
   async getRecentActivity() {
     await delay()

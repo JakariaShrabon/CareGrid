@@ -95,26 +95,6 @@ export interface DashboardOverview {
   alerts: DashboardAlert[]
 }
 
-export type NotificationCategory =
-  | 'patient'
-  | 'bed'
-  | 'blood'
-  | 'prescription'
-  | 'organ'
-  | 'billing'
-
-export interface AppNotification {
-  id: string
-  category: NotificationCategory
-  severity: Severity
-  title: string
-  body: string
-  /** ISO timestamp used for relative ("5m ago") formatting. */
-  time: string
-  /** Optional route to open when the notification is followed. */
-  href?: string
-}
-
 export type ActivityStatus = 'done' | 'in_progress' | 'pending' | 'info'
 
 export interface ActivityEvent {
